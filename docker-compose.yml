@@ -2,7 +2,7 @@ services:
   app:
     build: .
     ports:
-      - "3000:3000"
+      - "${APP_PORT:-3000}:3000"
     environment:
       DATABASE_URL: postgresql://fourzitou:${POSTGRES_PASSWORD:-changeme}@db:5432/fourzitou
       AUTH_SECRET: ${AUTH_SECRET}
@@ -10,9 +10,9 @@ services:
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-changeme123}
       ADMIN_DISPLAY_NAME: ${ADMIN_DISPLAY_NAME:-Admin}
-      UPLOAD_DIR: /app/uploads
+      UPLOAD_DIR: ${UPLOAD_DIR:-/app/uploads}
     volumes:
-      - uploads:/app/uploads
+      - uploads:${UPLOAD_DIR}
     depends_on:
       db:
         condition: service_healthy
