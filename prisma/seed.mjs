@@ -16,12 +16,11 @@ async function main() {
     return;
   }
 
-  const { rows } = await pool.query(
-    'SELECT id FROM "User" WHERE email = $1',
-    [email]
-  );
-  if (rows.length > 0) {
-    console.log(`Admin user ${email} already exists — skipping.`);
+  // Only seed on a fresh database (no users at all). If any user exists, the
+  // DB was already initialized on a previous start — skip unconditionally.
+  const { rows: countRows } = await pool.query('SELECT COUNT(*) FROM "User"');
+  if (parseInt(countRows[0].count, 10) > 0) {
+    console.log('Database already has users — skipping admin seed.');
     return;
   }
 

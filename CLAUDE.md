@@ -99,6 +99,14 @@ The generated client lives at `src/generated/prisma/` (not the default `node_mod
 
 Uploaded files land in `UPLOAD_DIR` (env var, default `/app/uploads` in Docker). The directory is a named Docker volume (`fourzitou_uploads`). Images are served via `GET /api/uploads/[...path]` — that route checks the session before streaming, so uploads are never publicly accessible. Path traversal is explicitly guarded.
 
+### Suggestion box
+
+`FloatingSuggestionButton` (in `src/components/suggestions/`) is rendered by `(app)/layout.tsx` and appears on every authenticated page as a fixed bottom-left button. The form modal is always mounted (never conditionally rendered) so the draft survives when the user closes without cancelling. Cancelling explicitly resets all form fields.
+
+Three submission types: **BUG** (red), **IDEA** (amber), **OTHER** (blue). Bug reports require an image — validated both client-side and in `createSuggestionAction`. Images support file picker, drag-and-drop, and clipboard paste.
+
+The admin view lives at `/settings/admin` below the user table: sortable columns (type / user / date), per-column visibility toggles, UP/DOWN thumb reactions (mutually exclusive), soft-delete toggle, and a double-click detail modal. Default ordering: thumbed-up first, thumbed-down last, then by date.
+
 ### Scoring
 
 `src/lib/scoring.ts` is a pure module (no DB, no side effects) — easy to unit-test:
@@ -128,6 +136,6 @@ See `.env.example` for all variables. Key points:
 
 Two named volumes: `fourzitou_pgdata` (PostgreSQL data) and `fourzitou_uploads` (user images). Both survive `docker compose down`; only `docker compose down -v` removes them.
 
-On first container start, the entrypoint runs `prisma db push` then `node prisma/seed.mjs`. The seed is idempotent — it creates the admin account only if the email doesn't already exist.
+On every container start, the entrypoint runs `prisma db push` (idempotent schema sync) then `node prisma/seed.mjs`. The seed skips immediately if any users exist in the database, so it only inserts the admin account on a completely fresh DB.
 
 Portainer GitOps: webhook-triggered redeployment with "Force redeployment" enabled. Env vars are managed in Portainer's stack environment (not committed to the repo).

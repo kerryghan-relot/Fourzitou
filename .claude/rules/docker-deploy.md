@@ -45,7 +45,7 @@ Critical constraints:
 1. PostgreSQL starts; healthcheck polls `pg_isready` every 5 s (up to 10 retries)
 2. App container starts only after DB is healthy
 3. Entrypoint runs `prisma db push` (idempotent schema sync)
-4. Entrypoint runs `node prisma/seed.mjs` (idempotent admin seed)
+4. Entrypoint runs `node prisma/seed.mjs` — skips immediately if any users already exist; only inserts the admin on a completely fresh DB
 5. Next.js starts on port 3000
 
 ## Portainer GitOps

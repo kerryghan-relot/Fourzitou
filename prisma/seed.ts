@@ -17,9 +17,11 @@ async function main() {
     return;
   }
 
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
-    console.log(`Admin user ${email} already exists — skipping.`);
+  // Only seed on a fresh database (no users at all). If any user exists, the
+  // DB was already initialized on a previous start — skip unconditionally.
+  const userCount = await prisma.user.count();
+  if (userCount > 0) {
+    console.log("Database already has users — skipping admin seed.");
     return;
   }
 

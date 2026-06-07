@@ -83,6 +83,10 @@ profile/
 
 admin/
   UserManagementPanel.tsx  ADMIN-only user table: create user, reset password, delete user
+  SuggestionTable.tsx      ADMIN-only submission table: sort, column visibility, thumb reactions, soft-delete, detail modal
+
+suggestions/
+  FloatingSuggestionButton.tsx  Fixed bottom-left floating button + inline SuggestionFormModal; always mounted to preserve draft on dismiss
 
 ui/
   ConfirmDialog.tsx   Reusable confirmation modal (used before every destructive action)
@@ -112,6 +116,7 @@ Each file groups actions by domain:
 | `scores.ts` | `upsertScoreAction`; enforces crown uniqueness via `updateMany` before upserting |
 | `comments.ts` | `createCommentAction`, `updateCommentAction` (no delete) |
 | `users.ts` | `updateProfileAction`, `updateAvatarAction`, `removeAvatarAction`, `changePasswordAction`; admin: `adminCreateUserAction`, `adminResetPasswordAction`, `adminDeleteUserAction` |
+| `suggestions.ts` | `createSuggestionAction` (all users); `adminUpdateSuggestionReactionAction`, `adminToggleRemoveSuggestionAction` (admin only) |
 
 ## `src/test/` — test layout
 
@@ -120,6 +125,7 @@ unit/
   scoring.test.ts      Pure function tests for lib/scoring.ts
   permissions.test.ts  Pure function tests for lib/permissions.ts
   password.test.ts     Pure function tests for lib/password.ts
+  suggestions.test.ts  Schema validation tests for suggestionSchema
 component/
   CommentList.test.tsx    RTL component test
   PasswordChangeForm.test.tsx  RTL component test
@@ -131,7 +137,7 @@ setup.ts               Vitest global setup (jest-dom matchers, MSW lifecycle)
 
 ## `prisma/`
 
-- `schema.prisma` — models: `User`, `Topic`, `TopicMember`, `Item`, `Score`, `Comment`. Prisma client is generated to `src/generated/prisma/` (not the default location).
+- `schema.prisma` — models: `User`, `Topic`, `TopicMember`, `Item`, `Score`, `Comment`, `Suggestion`. Enums: `Role`, `SuggestionType` (BUG/IDEA/OTHER), `SuggestionReaction` (UP/DOWN). Prisma client is generated to `src/generated/prisma/` (not the default location).
 - `seed.mjs` — idempotent admin seed; reads `ADMIN_EMAIL` / `ADMIN_PASSWORD` / `ADMIN_DISPLAY_NAME` from env; skips if the email already exists.
 
 ## Key constraints
@@ -140,3 +146,6 @@ setup.ts               Vitest global setup (jest-dom matchers, MSW lifecycle)
 - Images are served exclusively through `/api/uploads/[...path]`, never from `public/` in production.
 - Comments cannot be deleted by anyone, including admins (edit-only invariant).
 - Crown uniqueness (one crown per user per topic) is enforced in `upsertScoreAction` via `updateMany`, not by a DB constraint.
+- Suggestions are soft-deleted (`removed` boolean), never hard-deleted. The admin reaction (`UP`/`DOWN`) is a single mutually exclusive field per submission.
+- Bug-type suggestions require an image — enforced in `createSuggestionAction` (server-side) and in `SuggestionFormModal` (client-side).
+- The floating suggestion button is always mounted in `(app)/layout.tsx` so the form draft persists across navigation within the authenticated shell.

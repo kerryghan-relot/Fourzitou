@@ -14,6 +14,7 @@ export default async function SettingsStatsPage() {
     commentsWritten,
     crownsGiven,
     poopsGiven,
+    suggestionsSubmitted,
   ] = await Promise.all([
     prisma.topic.count({ where: { ownerId: userId } }),
     prisma.topicMember.count({ where: { userId } }),
@@ -21,6 +22,7 @@ export default async function SettingsStatsPage() {
     prisma.comment.count({ where: { authorId: userId } }),
     prisma.score.count({ where: { userId, crown: true } }),
     prisma.score.count({ where: { userId, poop: true } }),
+    prisma.suggestion.count({ where: { userId } }),
   ]);
 
   const topItemsByTopic = await prisma.item.groupBy({
@@ -39,6 +41,8 @@ export default async function SettingsStatsPage() {
     });
   }
 
+  const tSuggestions = await getTranslations("suggestions");
+
   const stats = [
     { label: t("topicsOwned"), value: topicsOwned },
     { label: t("topicsShared"), value: topicsShared },
@@ -46,6 +50,7 @@ export default async function SettingsStatsPage() {
     { label: t("commentsWritten"), value: commentsWritten },
     { label: t("crownsGiven"), value: crownsGiven },
     { label: t("poopsGiven"), value: poopsGiven },
+    { label: tSuggestions("statsLabel"), value: suggestionsSubmitted },
   ];
 
   return (

@@ -12,6 +12,17 @@ enum Role {
   ADMIN
 }
 
+enum SuggestionType {
+  BUG
+  IDEA
+  OTHER
+}
+
+enum SuggestionReaction {
+  UP
+  DOWN
+}
+
 model User {
   id           String    @id @default(cuid())
   email        String    @unique
@@ -28,6 +39,7 @@ model User {
   items       Item[]
   scores      Score[]
   comments    Comment[]
+  suggestions Suggestion[]
 }
 
 model Topic {
@@ -94,4 +106,19 @@ model Comment {
 
   item   Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
   author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+model Suggestion {
+  id          String              @id @default(cuid())
+  type        SuggestionType
+  title       String
+  description String
+  imagePath   String?
+  removed     Boolean             @default(false)
+  reaction    SuggestionReaction?
+  userId      String
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

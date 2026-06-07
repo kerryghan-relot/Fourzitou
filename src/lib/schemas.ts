@@ -63,6 +63,12 @@ export const updateProfileSchema = z.object({
   locale: z.enum(["en", "fr"]),
 });
 
+export const suggestionSchema = z.object({
+  type: z.enum(["BUG", "IDEA", "OTHER"]),
+  title: z.string().min(1, "Title is required").max(120),
+  description: z.string().min(1, "Description is required").max(5000),
+});
+
 export type SignInInput = z.infer<typeof signInSchema>;
 export type SignUpInput = z.infer<typeof signUpSchema>;
 export type TopicInput = z.infer<typeof topicSchema>;
@@ -71,3 +77,4 @@ export type ScoreInput = z.infer<typeof scoreSchema>;
 export type CommentInput = z.infer<typeof commentSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+export type SuggestionInput = z.infer<typeof suggestionSchema>;

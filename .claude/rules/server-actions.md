@@ -71,3 +71,9 @@ Admin actions live at the bottom of `users.ts` and use `requireAdmin()` (calls `
 ## Crown uniqueness
 
 `upsertScoreAction` enforces one crown per user per topic by running `updateMany` to clear other crowns before the upsert. There is no DB-level unique constraint for this — the logic is purely in the action.
+
+## Suggestion actions (`suggestions.ts`)
+
+- `createSuggestionAction(fd: FormData)` — any authenticated user; validates type/title/description via `suggestionSchema`; enforces image required for BUG type; image upload follows same 5 MB / JPEG/PNG/WebP/GIF pattern as items.
+- `adminUpdateSuggestionReactionAction(id, reaction)` — ADMIN only; sets reaction to `UP`, `DOWN`, or `null` (passing `null` clears the reaction).
+- `adminToggleRemoveSuggestionAction(id)` — ADMIN only; soft-deletes by toggling `removed` boolean (does not delete the DB row).
