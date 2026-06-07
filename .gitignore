@@ -52,3 +52,6 @@ next-env.d.ts
 # uploads (handled by docker volume in production)
 /public/uploads/*
 !/public/uploads/.gitkeep
+
+# Claude Code local settings (personal permissions, not for the repo)
+.claude/settings.local.json
